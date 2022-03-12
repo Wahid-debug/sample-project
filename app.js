@@ -2,7 +2,7 @@ const express = require("express");
 const path = require('path');
 const bodyParser = require("body-parser");
 const dbService = require('./services/dbService');
-const WahidsRouter = require("./routes/Wahid");
+const usersRouter = require("./routes/user");
 const app = express();
 dbService().startDev();
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use("/api/wahids", WahidsRouter)
+app.use("/api/user", usersRouter)
 
 app.use(function (err, req, res, next) {
 	// set locals, only providing error in development

@@ -1,4 +1,5 @@
-const Wahid = require("../../models/Wahid");
+const User = require("../../models/User");
+const {jwtTokens} = require('../../utils/jsonWebToken/jwt');
 
 const getPagination = (page, size) => {
 	const limit = size ? +size : 100;
@@ -13,28 +14,28 @@ const getPagingData = (data, page, limit) => {
 	return { totalItems, Data, totalPages, currentPage };
 };
 
-const WahidReq = (data) => {
-  const WahidKeys = [
+const UserReq = (data) => {
+  const UserKeys = [
     "first_name",
     "last_name",
     "email",
     "phone_no",
   ];
 
-  const wahidObject = {};
+  const userObject = {};
 
-  WahidKeys.forEach((currKey) => {
+  UserKeys.forEach((currKey) => {
     if (data[currKey] !== undefined) {
-      wahidObject[currKey] = data[currKey];
+      userObject[currKey] = data[currKey];
     }
   });
 
-  return wahidObject;
+  return userObject;
 };
 
  module.exports = {
 
-  getAllWahid: (req, res) => {
+  getAllUser: (req, res) => {
     const {
 			page = 0,
 			size = 100,
@@ -46,7 +47,7 @@ const WahidReq = (data) => {
 		Object.entries(searchParams).forEach(([key, value]) => {
 			if (key && value) where = { ...where, [key]: { $like: `%${value}%` } };
 		})
-    Wahid.findAndCountAll({
+    User.findAndCountAll({
       where,
 			order: [['id', 'DESC']],
 			limit,
@@ -63,14 +64,14 @@ const WahidReq = (data) => {
       });
   },
 
-  updateWahidById: (req,res)=>{
+  updateUserById: (req,res)=>{
     const {id} = req.params;
-    const formatWahid = WahidReq(req.body)
-    Wahid.findByPk(id).then((value)=> {
+    const formatUser = UserReq(req.body)
+    User.findByPk(id).then((value)=> {
       if(!value){
           throw new Error("Invalid Id");
         }
-        value.update(formatWahid)
+        value.update(formatUser)
       res.status(200).json({
         message: "Updated Successfully",
         data: value
@@ -82,9 +83,9 @@ const WahidReq = (data) => {
       });
   },
 
-  deleteWahidById: (req,res)=>{
+  deleteUserById: (req,res)=>{
     const {id} = req.params;
-    Wahid.findByPk(id).then((value)=> {
+    User.findByPk(id).then((value)=> {
       if(!value){
           throw new Error("Invalid Id");
         }
@@ -99,8 +100,8 @@ const WahidReq = (data) => {
       });
   },
 
-  WahidGetById: (req,res)=>{
-    Wahid.findOne({where:{id: req.params.id}}).then((value)=> {
+  userGetById: (req,res)=>{
+    User.findOne({where:{id: req.params.id}}).then((value)=> {
       if(!value){
           throw new Error(" Invalid  Id");
         }
@@ -115,10 +116,10 @@ const WahidReq = (data) => {
       });
   },
 
-  saveWahid: (req, res) => {
-    const formatWahid = WahidReq(req.body);
+  saveUser: (req, res) => {
+    const formatUser = UserReq(req.body);
     const {email} = req.body;
-    Wahid.findOne({
+    User.findOne({
         where: {
         email: { $eq: email, $not: null }
       }
@@ -128,11 +129,13 @@ const WahidReq = (data) => {
             message: "Email already registered."
           });
         }
-        Wahid.create(formatWahid)
+        User.create(formatUser)
       .then((value) => {
+        const token = jwtTokens(value)
         res.status(200).json({
           message: "Wahid Saved successfully",
           data: value,
+          token: token
         });
       })
       .catch((err) => {

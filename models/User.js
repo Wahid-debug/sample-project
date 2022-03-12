@@ -5,8 +5,8 @@ const hooks = {
     beforeCreate() {},
 };
 
-const Wahid = database.define(
-    'Wahid', 
+const User = database.define(
+    'User', 
     {
         id: {
 			autoIncrement: true,
@@ -38,6 +38,6 @@ const Wahid = database.define(
     }
 )
 
-//Wahid.sync({ alter: true });
+//User.sync({ alter: true });
 
-module.exports = Wahid;
+module.exports = User;
